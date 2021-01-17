@@ -47,7 +47,9 @@ function SignOut() {
 function ChatRoom() {
   const messagesRef = firestore.collection('messages');
   const query = messagesRef.orderBy('createdAt').limit(25);
+  console.log(query);
   const [messages] = useCollectionData(query, {idField: 'id'});
+  console.log(messages)
   return (
     <>
     <div><SignOut/></div>
@@ -60,10 +62,11 @@ function ChatRoom() {
 
 function ChatMessage(props) {
   const {text, uid} = props.message;
+  const messageClass = uid === auth.currentUser.uid ? 'sent' : 'received'
   return (
     <>
       <p>{text}</p>
-      <div>{uid}</div>
+      
     </>
   )
 }
