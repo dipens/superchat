@@ -96,11 +96,14 @@ function ChatRoom() {
 function ChatMessage(props) {
   const {text, uid, photoURL, displayName, createdAt} = props.message;
   const messageClass = uid === auth.currentUser.uid ? 'sent' : 'received'
+  console.log()
   return (
     <div className={`message ${messageClass}`}>
       
       <div className="profileClass">
-        <Tooltip title={new Intl.DateTimeFormat('en-US', {year: 'numeric', month: '2-digit',day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit'}).format(new Date(createdAt.seconds*1000))}>
+        <Tooltip title={
+          new Intl.DateTimeFormat('en-US', {year: 'numeric', month: '2-digit',day: '2-digit', hour: '2-digit', minute: '2-digit'})
+        .format(createdAt ? new Date(createdAt.seconds*1000) : '')}>
           <div>
             <img src = {photoURL || 'https://api.adorable.io/avatars/285/10@adorable.io.png'} alt={displayName}></img>
             <span className='displayNameClass'>{displayName}</span>
