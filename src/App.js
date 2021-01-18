@@ -3,6 +3,8 @@ import './App.css';
 import firebase from 'firebase/app'
 import 'firebase/firestore'
 import 'firebase/auth';
+import Button from '@material-ui/core/Button';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import {useAuthState} from 'react-firebase-hooks/auth'
 import {useCollectionData} from 'react-firebase-hooks/firestore'
@@ -46,13 +48,13 @@ function SignIn() {
     auth.signInWithPopup(provider);
   }
   return (
-    <button onClick={signInWithGoogle}>Sign in with Google</button>
+    <Button variant="contained" color="primary" onClick={signInWithGoogle}>Sign in with Google</Button>
   )
 }
 
 function SignOut() {
   return auth.currentUser && (
-    <button type="button" onClick={() => auth.signOut()}>Sign Out</button>
+    <Button variant="contained" color="primary" type="button" onClick={() => auth.signOut()}>Sign Out</Button>
   )
 }
 
@@ -64,12 +66,13 @@ function ChatRoom() {
   const [formValue, setFormValue] = React.useState('');
   const sendMessage = async(e) => {
     e.preventDefault();
-    const {uid, photoURL} = auth.currentUser;
+    const {uid, photoURL, displayName} = auth.currentUser;
     await messagesRef.add({
       text: formValue,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       uid,
       photoURL,
+      displayName,
     });
     setFormValue('');
     dummy.current.scrollIntoView({behaviour: 'smooth'})
@@ -83,7 +86,7 @@ function ChatRoom() {
         </main>
         <form onSubmit={sendMessage}>
           <input value={formValue} placeholder='Begin a conversation' onChange={(e) => setFormValue(e.target.value)}/>
-          <button type="submit">Send</button>
+          <Button variant="contained" color="primary" type="submit">Send</Button>
         </form>
       </div>
     </>
@@ -91,12 +94,20 @@ function ChatRoom() {
 }
 
 function ChatMessage(props) {
-  const {text, uid, photoURL} = props.message;
+  const {text, uid, photoURL, displayName, createdAt} = props.message;
   const messageClass = uid === auth.currentUser.uid ? 'sent' : 'received'
   return (
     <div className={`message ${messageClass}`}>
-      <img src = {photoURL || 'https://api.adorable.io/avatars/285/10@adorable.io.png'} alt={text}></img>
-      <p>{text}</p>
+      
+      <div className="profileClass">
+        <Tooltip title={new Intl.DateTimeFormat('en-US', {year: 'numeric', month: '2-digit',day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit'}).format(new Date(createdAt.seconds*1000))}>
+          <div>
+            <img src = {photoURL || 'https://api.adorable.io/avatars/285/10@adorable.io.png'} alt={displayName}></img>
+            <span className='displayNameClass'>{displayName}</span>
+          </div>
+        </Tooltip>
+      </div>
+      <div><p>{text}</p></div>
       
     </div>
   )
