@@ -47,27 +47,42 @@ function SignOut() {
 function ChatRoom() {
   const messagesRef = firestore.collection('messages');
   const query = messagesRef.orderBy('createdAt').limit(25);
-  console.log(query);
   const [messages] = useCollectionData(query, {idField: 'id'});
-  console.log(messages)
+  const [formValue, setFormValue] = React.useState('');
+  const sendMessage = async(e) => {
+    e.preventDefault();
+    const {uid, photoURL} = auth.currentUser;
+    await messagesRef.add({
+      text: formValue,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      uid,
+      photoURL,
+    });
+    setFormValue('');
+  };
   return (
     <>
     <div><SignOut/></div>
       <div>
         {messages && messages.map(msg => <ChatMessage key={msg.id} message={msg}/>)}
+        <form onSubmit={sendMessage}>
+          <input value={formValue} onChange={(e) => setFormValue(e.target.value)}/>
+          <button type="submit">Send</button>
+        </form>
       </div>
     </>
   )
 }
 
 function ChatMessage(props) {
-  const {text, uid} = props.message;
+  const {text, uid, photoURL} = props.message;
   const messageClass = uid === auth.currentUser.uid ? 'sent' : 'received'
   return (
-    <>
+    <div className={`message ${messageClass}`}>
+      <img src = {photoURL || 'https://api.adorable.io/avatars/285/10@adorable.io.png'} alt={text}></img>
       <p>{text}</p>
       
-    </>
+    </div>
   )
 }
 
