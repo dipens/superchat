@@ -30,6 +30,7 @@ const firestore = firebase.firestore();
 
 function App() {
   const [user] = useAuthState(auth);
+  document.title = 'Super Chat'
   return (
     <div className="App">
       <header>
