@@ -21,9 +21,12 @@ function App() {
   const [user] = useAuthState(auth);
   return (
     <div className="App">
-      <header className="App-header">
-        {user ? <ChatRoom /> : <SignIn />}
+      <header>
+        {user ? <SignOut /> : <></>}
       </header>
+      <section className="App-header">
+        {user ? <ChatRoom /> : <SignIn />}
+      </section>
     </div>
   );
 }
@@ -39,14 +42,15 @@ function SignIn() {
 }
 
 function SignOut() {
-  return auth.currentUser & (
-    <button onClick={() => auth.SignOut()}>Sign Out</button>
+  return auth.currentUser && (
+    <button type="button" onClick={() => auth.signOut()}>Sign Out</button>
   )
 }
 
 function ChatRoom() {
+  const dummy = React.useRef();
   const messagesRef = firestore.collection('messages');
-  const query = messagesRef.orderBy('createdAt').limit(25);
+  const query = messagesRef.orderBy('createdAt').limit(1000);
   const [messages] = useCollectionData(query, {idField: 'id'});
   const [formValue, setFormValue] = React.useState('');
   const sendMessage = async(e) => {
@@ -59,14 +63,17 @@ function ChatRoom() {
       photoURL,
     });
     setFormValue('');
+    dummy.current.scrollIntoView({behaviour: 'smooth'})
   };
   return (
     <>
-    <div><SignOut/></div>
       <div>
+        <main>
         {messages && messages.map(msg => <ChatMessage key={msg.id} message={msg}/>)}
+        <div ref={dummy}></div>
+        </main>
         <form onSubmit={sendMessage}>
-          <input value={formValue} onChange={(e) => setFormValue(e.target.value)}/>
+          <input value={formValue} placeholder='Begin a conversation' onChange={(e) => setFormValue(e.target.value)}/>
           <button type="submit">Send</button>
         </form>
       </div>
